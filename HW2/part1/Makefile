@@ -2,7 +2,7 @@ TARGET := pi.out
 
 CC := g++
 
-CFLAGS := -O3 -Wall -ffast-math -mavx2 -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize
+CFLAGS := -O3 -Wall -ffast-math -mavx2 -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize -pthread
 
 SRC := pi.cpp
 

@@ -8,6 +8,8 @@
 
 #include <pthread.h>
 
+#define N 1024
+
 struct ThreadArgs {
     int id;
     long long int iterations;
@@ -24,15 +26,29 @@ float get_rand_between(long long int a, long long int b)
 void *toss(void *args)
 {
     struct ThreadArgs* thread_args = (struct ThreadArgs*)args;
-    float x, y, squared_dist;
-    for (int i = 0; i < thread_args->iterations; i++) {
-        x = get_rand_between(0, 1);
-        y = get_rand_between(0, 1);
-        squared_dist = x * x + y * y;
-        if (squared_dist <= 1) {
-            thread_args->result += 1;
+    float x[N], y[N], squared_dist[N];
+
+    int inner_loop_iter;
+
+    // unsigned int seed = time(nullptr) + thread_args->id;
+    thread_local std::mt19937 generator(time(nullptr) + thread_args->id);
+    std::uniform_real_distribution<float> distribution(0, 1);
+
+    // float x, y, squared_dist;
+    for (int i = 0; i <= thread_args->iterations / N; i++) {
+        inner_loop_iter = (i == thread_args->iterations / N) ? thread_args->iterations % N : N;
+        for (int j = 0; j < inner_loop_iter; j++) {
+            // x[j] = static_cast<float>(rand_r(&seed)) / RAND_MAX;
+            // y[j] = static_cast<float>(rand_r(&seed)) / RAND_MAX;
+            x[j] = distribution(generator);
+            y[j] = distribution(generator);
+            squared_dist[j] = x[j] * x[j] + y[j] * y[j];
+            if (squared_dist[j] <= 1) {
+                thread_args->result += 1;
+            }
         }
     }
+
     pthread_exit(NULL);
 }
 
